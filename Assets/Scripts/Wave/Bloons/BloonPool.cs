@@ -10,36 +10,26 @@ using ServiceLocator.Player;
  *  Link: https://outscal.com/courses
  * */
 
-namespace ServiceLocator.Wave.Bloon
-{
-    public class BloonPool : GenericObjectPool<BloonController>
-    {
-        private PlayerService playerService;
-        private WaveService waveService;
-        private SoundService soundService;
+namespace ServiceLocator.Wave.Bloon {
+    public class BloonPool : GenericObjectPool<BloonController> {
 
         private BloonView bloonPrefab;
         private List<BloonScriptableObject> bloonScriptableObjects;
         private Transform bloonContainer;
 
-        public BloonPool(PlayerService playerService, WaveService waveService, SoundService soundService, WaveScriptableObject waveScriptableObject)
-        {
-            this.playerService = playerService;
-            this.waveService = waveService;
-            this.soundService = soundService;
+        public BloonPool(WaveScriptableObject waveScriptableObject) {
             this.bloonPrefab = waveScriptableObject.BloonPrefab;
             this.bloonScriptableObjects = waveScriptableObject.BloonScriptableObjects;
             this.bloonContainer = new GameObject("Bloon Container").transform;
         }
 
-        public BloonController GetBloon(BloonType bloonType)
-        {
+        public BloonController GetBloon(BloonType bloonType) {
             BloonController bloon = GetItem();
             BloonScriptableObject scriptableObjectToUse = bloonScriptableObjects.Find(so => so.Type == bloonType);
             bloon.Init(scriptableObjectToUse);
             return bloon;
         }
 
-        protected override BloonController CreateItem() => new BloonController(playerService, waveService, soundService, bloonPrefab, bloonContainer);
+        protected override BloonController CreateItem() => new BloonController(bloonPrefab, bloonContainer);
     }
 }
