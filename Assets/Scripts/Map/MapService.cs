@@ -4,10 +4,8 @@ using UnityEngine.Tilemaps;
 using ServiceLocator.Player;
 using ServiceLocator.Events;
 
-namespace ServiceLocator.Map
-{
-    public class MapService : MonoBehaviour
-    {
+namespace ServiceLocator.Map {
+    public class MapService : GenericMonoSingleton<MapService> {
         [SerializeField] private EventService eventService;
         [SerializeField] private MapScriptableObject mapScriptableObject;
 
@@ -16,8 +14,7 @@ namespace ServiceLocator.Map
         private MapData currentMapData;
         private SpriteRenderer tileOverlay;
 
-        private void Start()
-        {
+        private void Start() {
             SubscribeToEvents();
             tileOverlay = Object.Instantiate(mapScriptableObject.TileOverlay).GetComponent<SpriteRenderer>();
             ResetTileOverlay();
@@ -25,8 +22,7 @@ namespace ServiceLocator.Map
 
         private void SubscribeToEvents() => eventService.OnMapSelected.AddListener(LoadMap);
 
-        private void LoadMap(int mapId)
-        {
+        private void LoadMap(int mapId) {
             currentMapData = mapScriptableObject.MapDatas.Find(mapData => mapData.MapID == mapId);
             currentGrid = Instantiate(currentMapData.MapPrefab);
             currentTileMap = currentGrid.GetComponentInChildren<Tilemap>();
@@ -38,10 +34,8 @@ namespace ServiceLocator.Map
 
         private void ResetTileOverlay() => SetTileOverlayColor(TileOverlayColor.TRANSPARENT);
 
-        private void SetTileOverlayColor(TileOverlayColor colorToSet)
-        {
-            switch (colorToSet)
-            {
+        private void SetTileOverlayColor(TileOverlayColor colorToSet) {
+            switch (colorToSet) {
                 case TileOverlayColor.TRANSPARENT:
                     tileOverlay.color = mapScriptableObject.DefaultTileColor;
                     break;
@@ -54,39 +48,31 @@ namespace ServiceLocator.Map
             }
         }
 
-        public void ValidateSpawnPosition(Vector3 cursorPosition)
-        {
+        public void ValidateSpawnPosition(Vector3 cursorPosition) {
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(cursorPosition);
             Vector3Int cellPosition = GetCellPosition(mousePosition);
             Vector3 cellCenter = GetCenterOfCell(cellPosition);
 
-            if (CanSpawnOnPosition(cellCenter, cellPosition))
-            {
+            if (CanSpawnOnPosition(cellCenter, cellPosition)) {
                 tileOverlay.transform.position = cellCenter;
                 SetTileOverlayColor(TileOverlayColor.SPAWNABLE);
-            }
-            else
-            {
+            } else {
                 tileOverlay.transform.position = cellCenter;
                 SetTileOverlayColor(TileOverlayColor.NON_SPAWNABLE);
             }
         }
 
-        public bool TryGetMonkeySpawnPosition(Vector3 cursorPosition, out Vector3 spawnPosition)
-        {
+        public bool TryGetMonkeySpawnPosition(Vector3 cursorPosition, out Vector3 spawnPosition) {
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(cursorPosition);
             Vector3Int cellPosition = GetCellPosition(mousePosition);
             Vector3 cellCenter = GetCenterOfCell(cellPosition);
 
             ResetTileOverlay();
 
-            if (CanSpawnOnPosition(cellCenter, cellPosition))
-            {
+            if (CanSpawnOnPosition(cellCenter, cellPosition)) {
                 spawnPosition = cellCenter;
                 return true;
-            }
-            else
-            {
+            } else {
                 spawnPosition = Vector3.zero;
                 return false;
             }
@@ -96,40 +82,33 @@ namespace ServiceLocator.Map
 
         private Vector3 GetCenterOfCell(Vector3Int cellPosition) => currentGrid.GetCellCenterWorld(cellPosition);
 
-        private bool CanSpawnOnPosition(Vector3 cellCenter, Vector3Int cellPosition)
-        {
+        private bool CanSpawnOnPosition(Vector3 cellCenter, Vector3Int cellPosition) {
             Collider2D[] colliders = Physics2D.OverlapCircleAll(cellCenter, 0.1f);
             return InisdeTilemapBounds(cellPosition) && !HasClickedOnObstacle(colliders) && !IsOverLappingMonkey(colliders);
         }
 
-        private bool InisdeTilemapBounds(Vector3Int mouseToCell)
-        {
+        private bool InisdeTilemapBounds(Vector3Int mouseToCell) {
             BoundsInt tilemapBounds = currentTileMap.cellBounds;
             return tilemapBounds.Contains(mouseToCell);
         }
 
-        private bool HasClickedOnObstacle(Collider2D[] colliders)
-        {
-            foreach (Collider2D collider in colliders)
-            {
+        private bool HasClickedOnObstacle(Collider2D[] colliders) {
+            foreach (Collider2D collider in colliders) {
                 if (collider.GetComponent<TilemapCollider2D>() != null)
                     return true;
             }
             return false;
         }
 
-        private bool IsOverLappingMonkey(Collider2D[] colliders)
-        {
-            foreach (Collider2D collider in colliders)
-            {
+        private bool IsOverLappingMonkey(Collider2D[] colliders) {
+            foreach (Collider2D collider in colliders) {
                 if (collider.gameObject.GetComponent<MonkeyView>() != null && !collider.isTrigger)
                     return true;
             }
             return false;
         }
 
-        private enum TileOverlayColor
-        {
+        private enum TileOverlayColor {
             TRANSPARENT,
             SPAWNABLE,
             NON_SPAWNABLE

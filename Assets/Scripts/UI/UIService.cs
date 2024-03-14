@@ -7,13 +7,9 @@ using ServiceLocator.Events;
 using ServiceLocator.Wave;
 using ServiceLocator.Player;
 
-namespace ServiceLocator.UI
-{
-    public class UIService : MonoBehaviour
-    {
+namespace ServiceLocator.UI {
+    public class UIService : GenericMonoSingleton<UIService> {
         [SerializeField] private EventService eventService;
-        [SerializeField] private WaveService waveService;
-        [SerializeField] private PlayerService playerService;
 
         [Header("Gameplay Panel")]
         [SerializeField] private GameObject gameplayPanel;
@@ -41,9 +37,8 @@ namespace ServiceLocator.UI
         [SerializeField] private Button quitButton;
 
 
-        private void Start()
-        {
-            monkeySelectionController = new MonkeySelectionUIController(playerService, cellContainer, monkeyCellPrefab, monkeyCellScriptableObjects);
+        private void Start() {
+            monkeySelectionController = new MonkeySelectionUIController(cellContainer, monkeyCellPrefab, monkeyCellScriptableObjects);
             MonkeySelectionPanel.SetActive(false);
             monkeySelectionController.SetActive(false);
 
@@ -54,14 +49,13 @@ namespace ServiceLocator.UI
             nextWaveButton.onClick.AddListener(OnNextWaveButton);
             quitButton.onClick.AddListener(OnQuitButtonClicked);
             playAgainButton.onClick.AddListener(OnPlayAgainButtonClicked);
-            
+
             SubscribeToEvents();
         }
 
         public void SubscribeToEvents() => eventService.OnMapSelected.AddListener(OnMapSelected);
 
-        public void OnMapSelected(int mapID)
-        {
+        public void OnMapSelected(int mapID) {
             levelSelectionPanel.SetActive(false);
             gameplayPanel.SetActive(true);
             MonkeySelectionPanel.SetActive(true);
@@ -69,9 +63,8 @@ namespace ServiceLocator.UI
             currentMapText.SetText("Map: " + mapID);
         }
 
-        private void OnNextWaveButton()
-        {
-            waveService.StarNextWave();
+        private void OnNextWaveButton() {
+            WaveService.Instance.StarNextWave();
             SetNextWaveButton(false);
         }
 
@@ -87,8 +80,7 @@ namespace ServiceLocator.UI
 
         public void UpdateWaveProgressUI(int waveCompleted, int totalWaves) => waveProgressText.SetText(waveCompleted.ToString() + "/" + totalWaves.ToString());
 
-        public void UpdateGameEndUI(bool hasWon)
-        {
+        public void UpdateGameEndUI(bool hasWon) {
             gameplayPanel.SetActive(false);
             levelSelectionPanel.SetActive(false);
             gameEndPanel.SetActive(true);

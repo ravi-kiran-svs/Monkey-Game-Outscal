@@ -1,47 +1,37 @@
 using System;
 using UnityEngine;
 
-namespace ServiceLocator.Sound
-{
-    public class SoundService : MonoBehaviour
-    {
+namespace ServiceLocator.Sound {
+    public class SoundService : GenericMonoSingleton<SoundService> {
         [SerializeField] private SoundScriptableObject soundScriptableObject;
         [SerializeField] private AudioSource audioEffects;
         [SerializeField] private AudioSource backgroundMusic;
 
-        private void Start()
-        {
+        private void Start() {
             PlaybackgroundMusic(SoundType.BackgroundMusic, true);
         }
 
-        public void PlaySoundEffects(SoundType soundType, bool loopSound = false)
-        {
+        public void PlaySoundEffects(SoundType soundType, bool loopSound = false) {
             AudioClip clip = GetSoundClip(soundType);
-            if (clip != null)
-            {
+            if (clip != null) {
                 audioEffects.loop = loopSound;
                 audioEffects.clip = clip;
                 audioEffects.PlayOneShot(clip);
-            }
-            else
+            } else
                 Debug.LogError("No Audio Clip selected.");
         }
 
-        private void PlaybackgroundMusic(SoundType soundType, bool loopSound = false)
-        {
+        private void PlaybackgroundMusic(SoundType soundType, bool loopSound = false) {
             AudioClip clip = GetSoundClip(soundType);
-            if (clip != null)
-            {
+            if (clip != null) {
                 backgroundMusic.loop = loopSound;
                 backgroundMusic.clip = clip;
                 backgroundMusic.Play();
-            }
-            else
+            } else
                 Debug.LogError("No Audio Clip selected.");
         }
 
-        private AudioClip GetSoundClip(SoundType soundType)
-        {
+        private AudioClip GetSoundClip(SoundType soundType) {
             Sounds sound = Array.Find(soundScriptableObject.audioList, item => item.soundType == soundType);
             if (sound.audio != null)
                 return sound.audio;

@@ -8,31 +8,25 @@ using ServiceLocator.Utilities;
  *  Link: https://outscal.com/courses
  * */
 
-namespace ServiceLocator.Player.Projectile
-{
-    public class ProjectilePool : GenericObjectPool<ProjectileController>
-    {
-        private PlayerService playerService;
+namespace ServiceLocator.Player.Projectile {
+    public class ProjectilePool : GenericObjectPool<ProjectileController> {
         private ProjectileView projectilePrefab;
         private List<ProjectileScriptableObject> projectileScriptableObjects;
         private Transform projectileContainer;
 
-        public ProjectilePool(PlayerService playerService, ProjectileView projectilePrefab, List<ProjectileScriptableObject> projectileScriptableObjects)
-        {
-            this.playerService = playerService;
+        public ProjectilePool(ProjectileView projectilePrefab, List<ProjectileScriptableObject> projectileScriptableObjects) {
             this.projectilePrefab = projectilePrefab;
             this.projectileScriptableObjects = projectileScriptableObjects;
             this.projectileContainer = new GameObject("Projectile Container").transform;
         }
 
-        public ProjectileController GetProjectile(ProjectileType projectileType)
-        {
+        public ProjectileController GetProjectile(ProjectileType projectileType) {
             ProjectileController projectile = GetItem();
             ProjectileScriptableObject scriptableObjectToUse = projectileScriptableObjects.Find(so => so.Type == projectileType);
             projectile.Init(scriptableObjectToUse);
             return projectile;
         }
 
-        protected override ProjectileController CreateItem() => new ProjectileController(playerService, projectilePrefab, projectileContainer);
+        protected override ProjectileController CreateItem() => new ProjectileController(projectilePrefab, projectileContainer);
     }
 }
