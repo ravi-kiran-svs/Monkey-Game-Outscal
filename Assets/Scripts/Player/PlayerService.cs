@@ -6,10 +6,8 @@ using ServiceLocator.UI;
 using ServiceLocator.Map;
 using ServiceLocator.Sound;
 
-namespace ServiceLocator.Player
-{
-    public class PlayerService : GenericMonoSingleton<PlayerService>
-    {
+namespace ServiceLocator.Player {
+    public class PlayerService : GenericMonoSingleton<PlayerService> {
         [SerializeField] public PlayerScriptableObject playerScriptableObject;
 
         private ProjectilePool projectilePool;
@@ -20,14 +18,12 @@ namespace ServiceLocator.Player
         private int money;
         public int Money => money;
 
-        private void Start()
-        {
+        private void Start() {
             projectilePool = new ProjectilePool(playerScriptableObject.ProjectilePrefab, playerScriptableObject.ProjectileScriptableObjects);
             InitializeVariables();
         }
 
-        private void InitializeVariables()
-        {
+        private void InitializeVariables() {
             health = playerScriptableObject.Health;
             money = playerScriptableObject.Money;
             UIService.Instance.UpdateHealthUI(health);
@@ -35,23 +31,24 @@ namespace ServiceLocator.Player
             activeMonkeys = new List<MonkeyController>();
         }
 
-        public void Update()
-        {
-            if (Input.GetMouseButtonDown(0))
-            {
+        public void Update() {
+            if (activeMonkeys.Count > 0) {
+                foreach (MonkeyController monkey in activeMonkeys) {
+                    monkey.UpdateMonkey();
+                }
+            }
+
+            if (Input.GetMouseButtonDown(0)) {
                 UpdateSelectedMonkeyDisplay();
             }
         }
 
-        private void UpdateSelectedMonkeyDisplay()
-        {
+        private void UpdateSelectedMonkeyDisplay() {
             Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             RaycastHit2D[] hits = Physics2D.RaycastAll(mousePosition, Vector2.zero);
 
-            foreach (RaycastHit2D hit in hits)
-            {
-                if (IsMonkeyCollider(hit.collider))
-                {
+            foreach (RaycastHit2D hit in hits) {
+                if (IsMonkeyCollider(hit.collider)) {
                     selectedMonkeyView?.MakeRangeVisible(false);
                     selectedMonkeyView = hit.collider.GetComponent<MonkeyView>();
                     selectedMonkeyView.MakeRangeVisible(true);
@@ -64,28 +61,24 @@ namespace ServiceLocator.Player
 
         private bool IsMonkeyCollider(Collider2D collider) => collider != null && !collider.isTrigger && collider.GetComponent<MonkeyView>() != null;
 
-        public void ValidateSpawnPosition(int monkeyCost, Vector3 dropPosition)
-        {
+        public void ValidateSpawnPosition(int monkeyCost, Vector3 dropPosition) {
             if (monkeyCost > Money)
                 return;
 
             MapService.Instance.ValidateSpawnPosition(dropPosition);
         }
 
-        public void TrySpawningMonkey(MonkeyType monkeyType, int monkeyCost, Vector3 dropPosition)
-        {
+        public void TrySpawningMonkey(MonkeyType monkeyType, int monkeyCost, Vector3 dropPosition) {
             if (monkeyCost > money)
                 return;
 
-            if (MapService.Instance.TryGetMonkeySpawnPosition(dropPosition, out Vector3 spawnPosition))
-            {
+            if (MapService.Instance.TryGetMonkeySpawnPosition(dropPosition, out Vector3 spawnPosition)) {
                 SpawnMonkey(monkeyType, spawnPosition);
                 SoundService.Instance.PlaySoundEffects(SoundType.SpawnMonkey);
             }
         }
 
-        public void SpawnMonkey(MonkeyType monkeyType, Vector3 spawnPosition)
-        {
+        public void SpawnMonkey(MonkeyType monkeyType, Vector3 spawnPosition) {
             MonkeyScriptableObject monkeySO = playerScriptableObject.MonkeyScriptableObjects.Find(so => so.Type == monkeyType);
             MonkeyController monkey = new MonkeyController(monkeySO, projectilePool);
             monkey.SetPosition(spawnPosition);
@@ -97,18 +90,15 @@ namespace ServiceLocator.Player
 
         public void ReturnProjectileToPool(ProjectileController projectileToReturn) => projectilePool.ReturnItem(projectileToReturn);
 
-        public void TakeDamage(int damageToTake)
-        {
+        public void TakeDamage(int damageToTake) {
             health = health - damageToTake <= 0 ? 0 : health - damageToTake;
             UIService.Instance.UpdateHealthUI(health);
-            if (health <= 0)
-            {
+            if (health <= 0) {
                 PlayerDeath();
             }
         }
 
-        public void GetReward(int reward)
-        {
+        public void GetReward(int reward) {
             money += reward;
             UIService.Instance.UpdateMoneyUI(money);
         }
