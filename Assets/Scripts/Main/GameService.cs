@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using ServiceLocator.Map;
 using ServiceLocator.Player;
 using ServiceLocator.Sound;
 using ServiceLocator.UI;
@@ -22,9 +23,14 @@ public class GameService : GenericMonoSingleton<GameService> {
     [SerializeField] private UIService UIService;
     public UIService uiService => UIService;
 
+    public MapService mapService { get; private set; }
+    [Header("Map Service")]
+    [SerializeField] private MapScriptableObject mapScriptableObject;
+
     private void Start() {
         playerService = new PlayerService(playerScriptableObject);
         soundService = new SoundService(soundScriptableObject, audioEffects, backgroundMusic);
+        mapService = new MapService(mapScriptableObject);
     }
 
     private void Update() {
