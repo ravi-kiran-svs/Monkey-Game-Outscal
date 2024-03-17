@@ -158,6 +158,7 @@ MonoBehaviour:
   backgroundMusic: {fileID: 2019223321}
   UIService: {fileID: 1918220613}
   mapScriptableObject: {fileID: 11400000, guid: 412d441209954ab47a08973a630f316a, type: 2}
+  waveScriptableObject: {fileID: 11400000, guid: 1a1805a3a12f21d4c9847d85958ab9ce, type: 2}
 --- !u!4 &240052169
 Transform:
   m_ObjectHideFlags: 0

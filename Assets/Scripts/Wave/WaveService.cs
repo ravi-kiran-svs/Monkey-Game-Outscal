@@ -9,7 +9,7 @@ using ServiceLocator.Map;
 using ServiceLocator.Sound;
 
 namespace ServiceLocator.Wave {
-    public class WaveService : GenericMonoSingleton<WaveService> {
+    public class WaveService : MonoBehaviour {
         [SerializeField] private WaveScriptableObject waveScriptableObject;
         private BloonPool bloonPool;
 
@@ -21,6 +21,11 @@ namespace ServiceLocator.Wave {
             bloonPool = new BloonPool(waveScriptableObject);
             activeBloons = new List<BloonController>();
             SubscribeToEvents();
+        }
+
+        public WaveService(WaveScriptableObject wso) {
+            waveScriptableObject = wso;
+            Start();
         }
 
         private void SubscribeToEvents() => EventService.Instance.OnMapSelected.AddListener(LoadWaveDataForMap);

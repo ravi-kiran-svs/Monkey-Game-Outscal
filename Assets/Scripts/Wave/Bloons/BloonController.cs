@@ -71,7 +71,7 @@ namespace ServiceLocator.Wave.Bloon {
         private bool HasReachedNextWaypoint(float distance) => distance < waypointThreshold;
 
         private void ResetBloon() {
-            WaveService.Instance.RemoveBloon(this);
+            GameService.Instance.waveService.RemoveBloon(this);
             GameService.Instance.playerService.TakeDamage(bloonScriptableObject.Damage);
             bloonView.gameObject.SetActive(false);
         }
@@ -90,12 +90,12 @@ namespace ServiceLocator.Wave.Bloon {
                 SpawnLayeredBloons();
 
             GameService.Instance.playerService.GetReward(bloonScriptableObject.Reward);
-            WaveService.Instance.RemoveBloon(this);
+            GameService.Instance.waveService.RemoveBloon(this);
         }
 
         private bool HasLayeredBloons() => bloonScriptableObject.LayeredBloons.Count > 0;
 
-        private void SpawnLayeredBloons() => WaveService.Instance.SpawnBloons(bloonScriptableObject.LayeredBloons,
+        private void SpawnLayeredBloons() => GameService.Instance.waveService.SpawnBloons(bloonScriptableObject.LayeredBloons,
                                                                               bloonView.transform.position,
                                                                               currentWaypointIndex,
                                                                               bloonScriptableObject.LayerBloonSpawnRate);
