@@ -7,10 +7,8 @@ using ServiceLocator.Utilities;
 using ServiceLocator.Events;
 using ServiceLocator.Wave;
 
-namespace ServiceLocator.UI
-{
-    public class UIService : GenericMonoSingleton<UIService>
-    {
+namespace ServiceLocator.UI {
+    public class UIService : MonoBehaviour {
         [Header("Gameplay Panel")]
         [SerializeField] private GameObject gameplayPanel;
         [SerializeField] private TextMeshProUGUI healthText;
@@ -37,8 +35,7 @@ namespace ServiceLocator.UI
         [SerializeField] private Button quitButton;
 
 
-        private void Start()
-        {
+        private void Start() {
             monkeySelectionController = new MonkeySelectionUIController(cellContainer, monkeyCellPrefab, monkeyCellScriptableObjects);
             MonkeySelectionPanel.SetActive(false);
             monkeySelectionController.SetActive(false);
@@ -50,14 +47,13 @@ namespace ServiceLocator.UI
             nextWaveButton.onClick.AddListener(OnNextWaveButton);
             quitButton.onClick.AddListener(OnQuitButtonClicked);
             playAgainButton.onClick.AddListener(OnPlayAgainButtonClicked);
-            
+
             SubscribeToEvents();
         }
 
         public void SubscribeToEvents() => EventService.Instance.OnMapSelected.AddListener(OnMapSelected);
 
-        public void OnMapSelected(int mapID)
-        {
+        public void OnMapSelected(int mapID) {
             levelSelectionPanel.SetActive(false);
             gameplayPanel.SetActive(true);
             MonkeySelectionPanel.SetActive(true);
@@ -65,8 +61,7 @@ namespace ServiceLocator.UI
             currentMapText.SetText("Map: " + mapID);
         }
 
-        private void OnNextWaveButton()
-        {
+        private void OnNextWaveButton() {
             WaveService.Instance.StarNextWave();
             SetNextWaveButton(false);
         }
@@ -83,8 +78,7 @@ namespace ServiceLocator.UI
 
         public void UpdateWaveProgressUI(int waveCompleted, int totalWaves) => waveProgressText.SetText(waveCompleted.ToString() + "/" + totalWaves.ToString());
 
-        public void UpdateGameEndUI(bool hasWon)
-        {
+        public void UpdateGameEndUI(bool hasWon) {
             gameplayPanel.SetActive(false);
             levelSelectionPanel.SetActive(false);
             gameEndPanel.SetActive(true);
