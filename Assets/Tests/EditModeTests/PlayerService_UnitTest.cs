@@ -4,20 +4,15 @@ using ServiceLocator.Player;
 using ServiceLocator.Player.Projectile;
 using System.Collections.Generic;
 
-public class PlayerService_UnitTest 
-{
+public class PlayerService_UnitTest {
     private PlayerService playerService;
 
     [SetUp]
-    public void Setup()
-    {
+    public void Setup() {
         PlayerScriptableObject playerSO = CreateDummyPlayerSO();
-        playerService = new GameObject().AddComponent<PlayerService>();
-        playerService.playerScriptableObject = playerSO;
     }
 
-    private PlayerScriptableObject CreateDummyPlayerSO()
-    {
+    private PlayerScriptableObject CreateDummyPlayerSO() {
         PlayerScriptableObject playerScriptableObject = ScriptableObject.CreateInstance<PlayerScriptableObject>();
         playerScriptableObject.ProjectilePrefab = new GameObject().AddComponent<ProjectileView>();
         playerScriptableObject.ProjectileScriptableObjects = new List<ProjectileScriptableObject>();
@@ -27,8 +22,7 @@ public class PlayerService_UnitTest
     }
 
     [Test]
-    public void GetReward_AddsMoney()
-    {
+    public void GetReward_AddsMoney() {
         // Arrange
         var initialMoney = playerService.Money;
 
