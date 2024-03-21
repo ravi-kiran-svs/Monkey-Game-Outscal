@@ -7,10 +7,8 @@ using ServiceLocator.Sound;
 using ServiceLocator.Player;
 using ServiceLocator.UI;
 
-namespace ServiceLocator.Main
-{
-    public class GameService : GenericMonoSingleton<GameService>
-    {
+namespace ServiceLocator.Main {
+    public class GameService : GenericMonoSingleton<GameService> {
         // Services:
         public EventService EventService { get; private set; }
         public MapService MapService { get; private set; }
@@ -32,18 +30,18 @@ namespace ServiceLocator.Main
         [SerializeField] private AudioSource SFXSource;
         [SerializeField] private AudioSource BGSource;
 
-        private void Start()
-        {
+        private void Start() {
             EventService = new EventService();
             UIService.SubscribeToEvents();
             MapService = new MapService(mapScriptableObject);
             WaveService = new WaveService(waveScriptableObject);
             SoundService = new SoundService(soundScriptableObject, SFXSource, BGSource);
+
             PlayerService = new PlayerService(playerScriptableObject);
+            PlayerService.Init(UIService, MapService, SoundService);
         }
 
-        private void Update()
-        {
+        private void Update() {
             PlayerService.Update();
         }
     }
