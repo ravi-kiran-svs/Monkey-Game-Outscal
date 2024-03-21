@@ -1,50 +1,40 @@
 using System;
 using UnityEngine;
 
-namespace ServiceLocator.Sound
-{
-    public class SoundService
-    {
+namespace ServiceLocator.Sound {
+    public class SoundService {
         private SoundScriptableObject soundScriptableObject;
         private AudioSource audioEffects;
         private AudioSource backgroundMusic;
 
-        public SoundService(SoundScriptableObject soundScriptableObject, AudioSource audioEffectSource, AudioSource bgMusicSource)
-        {
+        public SoundService(SoundScriptableObject soundScriptableObject, AudioSource audioEffectSource, AudioSource bgMusicSource) {
             this.soundScriptableObject = soundScriptableObject;
             audioEffects = audioEffectSource;
             backgroundMusic = bgMusicSource;
             PlaybackgroundMusic(SoundType.BackgroundMusic, true);
         }
 
-        public void PlaySoundEffects(SoundType soundType, bool loopSound = false)
-        {
+        public void PlaySoundEffects(SoundType soundType, bool loopSound = false) {
             AudioClip clip = GetSoundClip(soundType);
-            if (clip != null)
-            {
+            if (clip != null) {
                 audioEffects.loop = loopSound;
                 audioEffects.clip = clip;
                 audioEffects.PlayOneShot(clip);
-            }
-            else
+            } else
                 Debug.LogError("No Audio Clip selected.");
         }
 
-        private void PlaybackgroundMusic(SoundType soundType, bool loopSound = false)
-        {
+        private void PlaybackgroundMusic(SoundType soundType, bool loopSound = false) {
             AudioClip clip = GetSoundClip(soundType);
-            if (clip != null)
-            {
+            if (clip != null) {
                 backgroundMusic.loop = loopSound;
                 backgroundMusic.clip = clip;
                 backgroundMusic.Play();
-            }
-            else
+            } else
                 Debug.LogError("No Audio Clip selected.");
         }
 
-        private AudioClip GetSoundClip(SoundType soundType)
-        {
+        private AudioClip GetSoundClip(SoundType soundType) {
             Sounds sound = Array.Find(soundScriptableObject.audioList, item => item.soundType == soundType);
             if (sound.audio != null)
                 return sound.audio;
