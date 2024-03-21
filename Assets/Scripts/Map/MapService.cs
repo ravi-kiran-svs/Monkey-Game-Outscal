@@ -18,12 +18,12 @@ namespace ServiceLocator.Map {
         public MapService(MapScriptableObject mapScriptableObject) {
             this.mapScriptableObject = mapScriptableObject;
             tileOverlay = Object.Instantiate(mapScriptableObject.TileOverlay).GetComponent<SpriteRenderer>();
-            ResetTileOverlay();
         }
 
         public void Init(EventService eve) {
             eventService = eve;
 
+            ResetTileOverlay();
             SubscribeToEvents();
         }
 

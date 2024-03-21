@@ -1,11 +1,10 @@
 using System.Collections.Generic;
+using ServiceLocator.Player;
+using ServiceLocator.Sound;
 using UnityEngine;
-using ServiceLocator.Main;
 
-namespace ServiceLocator.Wave.Bloon
-{
-    public class BloonController
-    {
+namespace ServiceLocator.Wave.Bloon {
+    public class BloonController {
         private BloonView bloonView;
         private BloonScriptableObject bloonScriptableObject;
 
@@ -15,60 +14,57 @@ namespace ServiceLocator.Wave.Bloon
         private int currentWaypointIndex;
         private BloonState currentState;
 
+        private SoundService soundService;
+        private WaveService waveService;
+        private PlayerService playerService;
+
         public Vector3 Position => bloonView.transform.position;
 
-        public BloonController(BloonView bloonPrefab, Transform bloonContainer)
-        {
+        public BloonController(BloonView bloonPrefab, Transform bloonContainer) {
             bloonView = Object.Instantiate(bloonPrefab, bloonContainer);
             bloonView.Controller = this;
         }
 
-        public void Init(BloonScriptableObject bloonScriptableObject)
-        {
+        public void Init(BloonScriptableObject bloonScriptableObject, SoundService sou, WaveService wav, PlayerService pla) {
+            soundService = sou;
+            waveService = wav;
+            playerService = pla;
+
             this.bloonScriptableObject = bloonScriptableObject;
             InitializeVariables();
             SetState(BloonState.ACTIVE);
         }
 
-        private void InitializeVariables()
-        {
+        private void InitializeVariables() {
             bloonView.SetRenderer(bloonScriptableObject.Sprite);
             currentHealth = bloonScriptableObject.Health;
             waypoints = new List<Vector3>();
         }
 
-        public void SetPosition(Vector3 spawnPosition)
-        {
+        public void SetPosition(Vector3 spawnPosition) {
             bloonView.transform.position = spawnPosition;
             bloonView.gameObject.SetActive(true);
         }
 
-        public void SetWayPoints(List<Vector3> waypointsToSet, int startingWaypointIndex)
-        {
+        public void SetWayPoints(List<Vector3> waypointsToSet, int startingWaypointIndex) {
             waypoints = waypointsToSet;
             currentWaypointIndex = startingWaypointIndex;
         }
 
-        public void TakeDamage(int damageToTake)
-        {
+        public void TakeDamage(int damageToTake) {
             int reducedHealth = currentHealth - damageToTake;
             currentHealth = reducedHealth <= 0 ? 0 : reducedHealth;
 
-            if (currentHealth <= 0 && currentState == BloonState.ACTIVE)
-            {
+            if (currentHealth <= 0 && currentState == BloonState.ACTIVE) {
                 PopBloon();
-                GameService.Instance.SoundService.PlaySoundEffects(Sound.SoundType.BloonPop);
+                soundService.PlaySoundEffects(Sound.SoundType.BloonPop);
             }
         }
 
-        public void FollowWayPoints()
-        {
-            if(HasReachedFinalWaypoint())
-            {
+        public void FollowWayPoints() {
+            if (HasReachedFinalWaypoint()) {
                 ResetBloon();
-            }
-            else
-            {
+            } else {
                 Vector3 direction = GetDirectionToMoveTowards();
                 MoveBloon(direction);
                 if (HasReachedNextWaypoint(direction.magnitude))
@@ -80,10 +76,9 @@ namespace ServiceLocator.Wave.Bloon
 
         private bool HasReachedNextWaypoint(float distance) => distance < waypointThreshold;
 
-        private void ResetBloon()
-        {
-            GameService.Instance.WaveService.RemoveBloon(this);
-            GameService.Instance.PlayerService.TakeDamage(bloonScriptableObject.Damage);
+        private void ResetBloon() {
+            waveService.RemoveBloon(this);
+            playerService.TakeDamage(bloonScriptableObject.Damage);
             bloonView.gameObject.SetActive(false);
         }
 
@@ -93,35 +88,32 @@ namespace ServiceLocator.Wave.Bloon
 
         public void SetOrderInLayer(int orderInLayer) => bloonView.SetSortingOrder(orderInLayer);
 
-        private void PopBloon()
-        {
+        private void PopBloon() {
             SetState(BloonState.POPPED);
             bloonView.PopBloon();
         }
 
-        public void OnPopAnimationPlayed()
-        {
+        public void OnPopAnimationPlayed() {
             if (HasLayeredBloons())
                 SpawnLayeredBloons();
 
-            GameService.Instance.PlayerService.GetReward(bloonScriptableObject.Reward);
-            GameService.Instance.WaveService.RemoveBloon(this);
+            playerService.GetReward(bloonScriptableObject.Reward);
+            waveService.RemoveBloon(this);
         }
 
         private bool HasLayeredBloons() => bloonScriptableObject.LayeredBloons.Count > 0;
 
-        private void SpawnLayeredBloons() => GameService.Instance.WaveService.SpawnBloons(bloonScriptableObject.LayeredBloons,
-                                                                                          bloonView.transform.position,
-                                                                                          currentWaypointIndex,
-                                                                                          bloonScriptableObject.LayerBloonSpawnRate);
+        private void SpawnLayeredBloons() => waveService.SpawnBloons(bloonScriptableObject.LayeredBloons,
+                                                                     bloonView.transform.position,
+                                                                     currentWaypointIndex,
+                                                                     bloonScriptableObject.LayerBloonSpawnRate);
 
         public BloonType GetBloonType() => bloonScriptableObject.Type;
 
         private void SetState(BloonState state) => currentState = state;
     }
 
-    public enum BloonState
-    {
+    public enum BloonState {
         ACTIVE,
         POPPED
     }

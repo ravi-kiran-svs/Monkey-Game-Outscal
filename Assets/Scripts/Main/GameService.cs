@@ -43,7 +43,7 @@ namespace ServiceLocator.Main {
 
         private void InitServices() {
             PlayerService.Init(UIService, MapService, SoundService);
-            WaveService.Init(EventService, UIService, MapService, SoundService);
+            WaveService.Init(EventService, UIService, MapService, SoundService, WaveService, PlayerService);
             MapService.Init(EventService);
         }
 
